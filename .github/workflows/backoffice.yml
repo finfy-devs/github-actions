@@ -16,7 +16,7 @@ on:
         required: true
 
 jobs:
-  backoffice:
+  build:
     runs-on: ubuntu-latest
     outputs:
       my_secrets: ${{ steps.set_secrets.outputs.my_secrets }}
@@ -75,14 +75,21 @@ jobs:
           mv ./dist ./dist-temp/${{ inputs.directory }}
           mv ./dist-temp ./dist 
 
-      - name: Deploy
-        # uses: ./devops/front-deploy
-        uses: cartos-devs/github-actions/.github/workflows/deploy-front.yml@main 
-        with:
-          stackName: finfy-backoffice
-          folder: dist
-          subdomain: backoffice
-          hostedZoneName: ${{ env.AWS_DOMAIN }}
-          certificateArn: ${{ env.AWS_CERTIFICATE_ARN }}
+      # - name: Deploy
+      #   # uses: ./devops/front-deploy
+      #   uses: cartos-devs/github-actions/.github/workflows/deploy-front.yml@main 
+      #   with:
+      #     stackName: finfy-backoffice
+      #     folder: dist
+      #     subdomain: backoffice
+      #     hostedZoneName: ${{ env.AWS_DOMAIN }}
+      #     certificateArn: ${{ env.AWS_CERTIFICATE_ARN }}
 
-    
+  deploy:
+    uses: cartos-devs/github-actions/.github/workflows/deploy-front.yml@main  
+    with:
+      stackName: finfy-backoffice
+      folder: dist
+      subdomain: backoffice
+      hostedZoneName: ${{ env.AWS_DOMAIN }}
+      certificateArn: ${{ env.AWS_CERTIFICATE_ARN }}
