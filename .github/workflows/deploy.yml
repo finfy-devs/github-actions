@@ -76,13 +76,13 @@ jobs:
           mv ./dist-temp ./dist 
 
       - name: Deploy
-        uses: ./devops/front-deploy
+        # uses: ./devops/front-deploy
+        uses: cartos-devs/github-actions/devops/front-deploy/action.yml@main  
         with:
           stackName: finfy-backoffice
           folder: dist
           subdomain: backoffice
           hostedZoneName: ${{ env.AWS_DOMAIN }}
           certificateArn: ${{ env.AWS_CERTIFICATE_ARN }}
-
 
     

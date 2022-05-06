@@ -24,7 +24,8 @@ runs:
       with:
         name: ${{ inputs.stackName }}
         no-fail-on-empty-changeset: '1'
-        template: ./devops/front-deploy/cloud-formation.yaml
+        # template: ./devops/front-deploy/cloud-formation.yaml
+        template: https://cartos-infra-dev.s3.amazonaws.com/cloud-formation-front.yaml
         parameter-overrides: 'DomainName=${{ inputs.subdomain }}.${{ inputs.hostedZoneName }},HostedZoneName=${{ inputs.hostedZoneName }},CertificateArn=${{ inputs.certificateArn }}'
 
     - name: AWS - SSM Get Parameters - S3 + CLOUDFRONT
