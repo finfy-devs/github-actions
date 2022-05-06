@@ -1,4 +1,4 @@
-name: Deploy
+name: Deploy BackOffice
 
 on:
   workflow_call:
@@ -16,7 +16,7 @@ on:
         required: true
 
 jobs:
-  validate:
+  backoffice:
     runs-on: ubuntu-latest
     outputs:
       my_secrets: ${{ steps.set_secrets.outputs.my_secrets }}
@@ -77,7 +77,7 @@ jobs:
 
       - name: Deploy
         # uses: ./devops/front-deploy
-        uses: cartos-devs/github-actions/devops/front-deploy/action.yml@main  
+        uses: cartos-devs/github-actions/.github/workflows/deploy-front.yml@main 
         with:
           stackName: finfy-backoffice
           folder: dist
