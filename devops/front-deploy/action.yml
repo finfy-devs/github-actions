@@ -1,0 +1,51 @@
+name: "FRONT"
+description: ""
+inputs:
+  subdomain:
+    description: 'subdomain'
+    required: true
+  hostedZoneName:
+    description: 'hostedZoneName'
+    required: true
+  stackName:
+    description: 'hostedZoneName'
+    required: true
+  folder:
+    description: 'folder'
+    required: true
+  certificateArn:
+    description: 'certificateArn'
+    required: true
+runs:
+  using: "composite"
+  steps:
+    - name: Deploy to AWS CloudFormation
+      uses: aws-actions/aws-cloudformation-github-deploy@v1
+      with:
+        name: ${{ inputs.stackName }}
+        no-fail-on-empty-changeset: '1'
+        template: ./devops/front-deploy/cloud-formation.yaml
+        parameter-overrides: 'DomainName=${{ inputs.subdomain }}.${{ inputs.hostedZoneName }},HostedZoneName=${{ inputs.hostedZoneName }},CertificateArn=${{ inputs.certificateArn }}'
+
+    - name: AWS - SSM Get Parameters - S3 + CLOUDFRONT
+      uses: dkershner6/aws-ssm-getparameters-action@v1
+      with:
+        parameterPairs: '
+          /front/${{ inputs.stackName }}/s3-bucket = AWS_S3_BUCKET,
+          /front/${{ inputs.stackName }}/cloudfront-distribution-id = AWS_CLOUDFRONT_DISTRIBUTION_ID'
+        withDecryption: 'true' # defaults to true
+
+    - name: Deploy S3
+      uses: lbertenasco/s3-deploy@v1
+      with:
+        folder: ${{ inputs.folder }}
+        bucket: ${{ env.AWS_S3_BUCKET }}
+        dist-id: ${{ env.AWS_CLOUDFRONT_DISTRIBUTION_ID }}
+        invalidation: / *
+
+    # - name: Tag commit
+    #   uses: tvdias/github-tagger@v0.0.1
+    #   with:
+    #     repo-token: "${{ github.token }}"
+    #     tag: "b${{ github.run_number }}"
+
