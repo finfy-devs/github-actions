@@ -3,6 +3,12 @@ name: Deploy BackOffice
 on:
   workflow_call:
     inputs:
+     theme:
+        required: false
+        type: string
+     modules:
+        required: false
+        type: string
       directory:
         required: false
         type: string
@@ -53,6 +59,8 @@ jobs:
         run: yarn build
         env:
           NODE_ENV: "development"
+          THEME: '${{ inputs.theme }}'
+          MODULES: '${{ inputs.modules }}'
           GENERATE_SOURCEMAP: "false"
           CI: "false"
           REACT_APP_API_GATEWAY: "https://${{ env.AWS_API_DOMAIN }}"
