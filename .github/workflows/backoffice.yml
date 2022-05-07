@@ -58,7 +58,7 @@ jobs:
         run: yarn build:webpack
         env:
           NODE_ENV: 'development'
-          REACT_APP_THEME: '${{ inputs.theme }}'
+          REACT_APP_THEME: 'FINFY'
           GENERATE_SOURCEMAP: 'false'
           CI: 'false'
           REACT_APP_MODULES: 'DASHBOARD, SPB, SPI, SETTINGS, USERS, SINGLE-REGISTRATION, SITE, BILLS-TO-PAY, CREDIT, DIGITAL-ACCOUNT, TRANSACTIONS-BATCH, SHOPKEEPER, PAG-SEGURO, FGTS'
