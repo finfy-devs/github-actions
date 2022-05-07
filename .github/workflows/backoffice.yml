@@ -3,9 +3,6 @@ name: Deploy BackOffice
 on:
   workflow_call:
     inputs:
-      theme:
-        required: true
-        type: string
       directory:
         required: false
         type: string
