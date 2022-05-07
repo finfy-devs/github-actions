@@ -55,7 +55,7 @@ jobs:
           withDecryption: 'false' # defaults to true
 
       - name: Build
-        run: yarn build:webpack
+        run: yarn build
         env:
           NODE_ENV: 'development'
           REACT_APP_THEME: 'FINFY'
