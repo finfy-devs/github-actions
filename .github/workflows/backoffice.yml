@@ -52,7 +52,8 @@ jobs:
           parameterPairs: "
             /cartos/infra/certificate/arn = AWS_CERTIFICATE_ARN,
             /cartos/infra/certificate/domain = AWS_DOMAIN,
-            /cartos/infra/api-gateway/domain = AWS_API_DOMAIN"
+            /cartos/infra/api-gateway/domain = AWS_API_DOMAIN,
+            /cartos/store-sellers/api-gateway/domain = AWS_STORE_API_DOMAIN"
           withDecryption: "false" # defaults to true
 
       - name: Build
@@ -68,6 +69,7 @@ jobs:
           REACT_APP_SPI: "https://api.spi.cartos.solutions"
           REACT_APP_SHIPPING: "https://boletos.cartos.staging.luby.com.br" # Remessa
           REACT_APP_SITE: "https://api.site.cartos.com.br/graphql"
+          REACT_APP_SHOPKEEPER_API_GATEWAY: "https://${{ env.AWS_STORE_API_DOMAIN }}"
 
       - name: Move dist
         if: "${{ inputs.directory != '' }}"
