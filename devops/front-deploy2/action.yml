@@ -1,0 +1,92 @@
+name: "Deploy"
+description: ""
+inputs:
+  aws_key:
+    description: "aws_key"
+    required: true  
+  aws_secret:
+    description: "aws_secret"
+    required: true  
+  theme:
+    description: "theme"
+    required: true  
+  modules:
+    description: "modules"
+    required: true  
+  subdomain:
+    description: "subdomain"
+    required: true  
+runs:
+  using: "composite"
+  steps:
+    - name: Configure AWS credentials
+      id: creds
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws-access-key-id: ${{ inputs.aws_key }}
+        aws-secret-access-key: ${{ inputs.aws_secret }}
+        aws-region: us-east-1
+
+    - name: checkout
+      uses: actions/checkout@v2
+      with:
+        persist-credentials: false
+
+    - name: cache
+      uses: actions/cache@v2
+      with:
+        path: '**/node_modules'
+        key: ${{ runner.os }}-modules-${{ hashFiles('**/yarn.lock') }}
+
+    - uses: actions/setup-node@v2
+      with:
+        node-version: "12"
+
+    - name: Install dependencies
+      shell: bash
+      run: yarn install --production=false
+      env:
+        NODE_ENV: "development"
+        GENERATE_SOURCEMAP: "false"
+
+    - name: AWS - SSM Get Parameters
+      uses: dkershner6/aws-ssm-getparameters-action@v1
+      with:
+        parameterPairs: '
+          /cartos/infra/certificate/arn = AWS_CERTIFICATE_ARN,
+          /cartos/infra/certificate/domain = AWS_DOMAIN,
+          /cartos/infra/api-gateway/domain = AWS_API_DOMAIN,
+          /cartos/store-sellers/api-gateway/domain = AWS_STORE_API_DOMAIN'
+        withDecryption: 'false' # defaults to true
+
+    - name: Build
+      shell: bash
+      run: yarn build
+      env:
+        NODE_ENV: "development"
+        THEME: "${{ inputs.theme }}" 
+        MODULES: "${{ inputs.modules }}"
+        GENERATE_SOURCEMAP: "false"
+        CI: "false"
+        REACT_APP_API_GATEWAY: "https://${{ env.AWS_API_DOMAIN }}"
+        REACT_APP_SPB_SPI: "https://api.spb.cartos.solutions"
+        REACT_APP_SPI: "https://api.spi.cartos.solutions"
+        REACT_APP_SHIPPING: "https://boletos.cartos.staging.luby.com.br" # Remessa
+        REACT_APP_SITE: "https://api.site.cartos.com.br/graphql"
+
+    - name: Move dist
+      if: "${{ inputs.directory != '' }}"
+      shell: bash
+      run: |
+        mkdir dist-temp
+        mv ./dist ./dist-temp/${{ inputs.directory }}
+        mv ./dist-temp ./dist
+
+    - name: Deploy
+      uses: cartos-devs/github-actions/devops/front-deploy@main
+      with:
+        stackName: finfy-backoffice
+        folder: dist
+        subdomain: "${{ inputs.subdomain }}"
+        hostedZoneName: ${{ env.AWS_DOMAIN }}
+        certificateArn: ${{ env.AWS_CERTIFICATE_ARN }}

@@ -1,0 +1,88 @@
+name: Deploy BackOffice
+
+on:
+  workflow_call:
+    # inputs:
+    #   theme:
+    #     required: false
+    #     type: string
+    #   modules:
+    #     required: false
+    #     type: string
+    #   directory:
+    #     required: false
+    #     type: string
+    # secrets:
+    #   AWS_KEY:
+    #     required: true
+    #   AWS_SECRET:
+    #     required: true
+
+jobs:
+  get-config:
+    runs-on: ubuntu-latest
+    outputs:
+      deployment-matrix: ${{ steps.export-deployment-matrix.outputs.deployment-matrix }}
+    steps:
+
+      - name: Fetch API Config 📦
+        uses: JamesIves/fetch-api-data-action@v2.2.2
+        with:
+          endpoint: https://mfe-backoffice-root.s3.amazonaws.com/deployments/deployment-config.json
+          configuration: '{ "method": "GET", "headers": {} }'
+
+      # - name: Checkout
+      #   uses: actions/checkout@v2
+
+      - name: Export deployment matrix
+        id: export-deployment-matrix
+        run: |
+          JSON="$(cat fetch-api-data-action/data.json)"
+          echo "${JSON}"
+          JSON="${JSON//'%'/'%25'}"
+          JSON="${JSON//$'\n'/'%0A'}"
+          JSON="${JSON//$'\r'/'%0D'}"
+          echo "${JSON}"
+          echo "::set-output name=deployment-matrix::$JSON"
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: get-config
+    strategy:
+      fail-fast: false
+      matrix:
+        server: ${{ fromJson(needs.get-config.outputs.deployment-matrix) }}
+    steps:
+      - name: checkout
+        uses: actions/checkout@v2
+        with:
+          persist-credentials: false
+    
+      - name: "${{ matrix.server.name }}: Prepare deploy"
+        run: |
+          echo "${{ matrix.server.name }}"
+          echo "${{ matrix.server.domain }}"
+          echo "${{ matrix.server.version }}"
+          client_code=AWS_CREDENTIALS_${{ matrix.server.name }}
+          echo "::set-output name=secret::${client_code}"
+        id: prepare_env
+
+      - name: Set ENV Credentials
+        run: |
+          echo "${{ steps.prepare_env.outputs.secret }}"
+          secret="${{ secrets[steps.prepare_env.outputs.secret] }}"
+          aws_key=$(echo "$secret" | sed -n '1p')
+          aws_secret=$(echo "$secret" | sed -n '2p')
+          echo "::set-output name=aws_key::${aws_key}"
+          echo "::set-output name=aws_secret::${aws_secret}"
+        id: data_secret
+
+      - name: Deploy 
+        # uses: ./.github/workflows/1deploy
+        uses: cartos-devs/github-actions/devops/front-deploy2@main 
+        with:
+          aws_key: ${{ steps.data_secret.outputs.aws_key }}
+          aws_secret: ${{ steps.data_secret.outputs.aws_secret }}
+          theme: ${{ matrix.server.name }}
+          modules: ${{ matrix.server.modules }}
+          subdomain: "backoffice" # ${{ matrix.server.subdomain }}
