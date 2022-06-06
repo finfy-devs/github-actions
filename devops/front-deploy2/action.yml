@@ -16,6 +16,9 @@ inputs:
   subdomain:
     description: "subdomain"
     required: true  
+  directory:
+    description: "directory"
+    required: false  
 runs:
   using: "composite"
   steps:

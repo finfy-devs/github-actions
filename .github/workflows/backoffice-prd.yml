@@ -5,21 +5,10 @@ on:
     secrets:
       AWS_CREDENTIALS_CARTOS:
         required: true
-    # inputs:
-    #   theme:
-    #     required: false
-    #     type: string
-    #   modules:
-    #     required: false
-    #     type: string
-    #   directory:
-    #     required: false
-    #     type: string
-    # secrets:
-    #   AWS_KEY:
-    #     required: true
-    #   AWS_SECRET:
-    #     required: true
+    inputs:
+      directory:
+        required: false
+        type: string
 
 jobs:
   get-config:
@@ -89,3 +78,4 @@ jobs:
           theme: ${{ matrix.server.name }}
           modules: ${{ matrix.server.modules }}
           subdomain: "backoffice" # ${{ matrix.server.subdomain }}
+          directory: ${{ inputs.directory }}
