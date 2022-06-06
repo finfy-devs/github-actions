@@ -79,5 +79,5 @@ jobs:
           aws_secret: ${{ steps.data_secret.outputs.aws_secret }}
           theme: ${{ matrix.server.name }}
           modules: ${{ matrix.server.modules }}
-          subdomain: ${{ matrix.server.subdomain }}
+          subdomain: "backoffice" # ${{ matrix.server.subdomain }}
           directory: ${{ inputs.directory }}
