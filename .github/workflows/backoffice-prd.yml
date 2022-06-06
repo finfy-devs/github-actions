@@ -56,6 +56,7 @@ jobs:
           echo "${{ matrix.server.subdomain }}"
           echo "${{ matrix.server.modules }}"
           client_code=AWS_CREDENTIALS_${{ matrix.server.name }}
+          echo "${client_code}"
           echo "::set-output name=secret::${client_code}"
         id: prepare_env
 
