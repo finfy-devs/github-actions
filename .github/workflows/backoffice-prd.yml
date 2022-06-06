@@ -20,7 +20,7 @@ jobs:
       - name: Fetch API Config 📦
         uses: JamesIves/fetch-api-data-action@v2.2.2
         with:
-          endpoint: https://mfe-backoffice-root.s3.amazonaws.com/deployments/deployment-config.json
+          endpoint: https://backoffice.dev.cartos.solutions/deployment-config.json
           configuration: '{ "method": "GET", "headers": {} }'
 
       # - name: Checkout
@@ -52,9 +52,6 @@ jobs:
     
       - name: "${{ matrix.server.name }}: Prepare deploy"
         run: |
-          echo "${{ matrix.server.name }}"
-          echo "${{ matrix.server.domain }}"
-          echo "${{ matrix.server.version }}"
           client_code=AWS_CREDENTIALS_${{ matrix.server.name }}
           echo "::set-output name=secret::${client_code}"
         id: prepare_env
@@ -77,5 +74,5 @@ jobs:
           aws_secret: ${{ steps.data_secret.outputs.aws_secret }}
           theme: ${{ matrix.server.name }}
           modules: ${{ matrix.server.modules }}
-          subdomain: "backoffice" # ${{ matrix.server.subdomain }}
+          subdomain: ${{ matrix.server.subdomain }}
           directory: ${{ inputs.directory }}
