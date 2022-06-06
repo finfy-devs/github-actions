@@ -52,6 +52,9 @@ jobs:
     
       - name: "${{ matrix.server.name }}: Prepare deploy"
         run: |
+          echo "${{ matrix.server.name }}"
+          echo "${{ matrix.server.subdomain }}"
+          echo "${{ matrix.server.modules }}"
           client_code=AWS_CREDENTIALS_${{ matrix.server.name }}
           echo "::set-output name=secret::${client_code}"
         id: prepare_env
