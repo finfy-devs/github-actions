@@ -2,6 +2,9 @@ name: Deploy BackOffice
 
 on:
   workflow_call:
+    secrets:
+      AWS_CREDENTIALS_CARTOS:
+        required: true
     # inputs:
     #   theme:
     #     required: false
