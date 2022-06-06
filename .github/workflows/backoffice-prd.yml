@@ -64,7 +64,6 @@ jobs:
 
       - name: Set ENV Credentials
         run: |
-          echo "${{ secrets['AWS_CREDENTIALS_CAPITAL_CONSIG'] }}"
           echo "${{ steps.prepare_env.outputs.secret }}"
           secret="${{ secrets[steps.prepare_env.outputs.secret] }}"
           aws_key=$(echo "$secret" | sed -n '1p')
@@ -74,7 +73,6 @@ jobs:
         id: data_secret
 
       - name: Deploy 
-        # uses: ./.github/workflows/1deploy
         uses: cartos-devs/github-actions/devops/front-deploy2@main 
         with:
           aws_key: ${{ steps.data_secret.outputs.aws_key }}
