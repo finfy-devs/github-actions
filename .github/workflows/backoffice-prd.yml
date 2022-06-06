@@ -5,6 +5,8 @@ on:
     secrets:
       AWS_CREDENTIALS_CARTOS:
         required: true
+      AWS_CREDENTIALS_CAPITAL_CONSIG:
+        required: true
     inputs:
       directory:
         required: false
