@@ -71,6 +71,7 @@ runs:
         MODULES: "${{ inputs.modules }}"
         GENERATE_SOURCEMAP: "false"
         CI: "false"
+        REACT_APP_HOST: "https://${{ inputs.subdomain }}.${{ env.AWS_DOMAIN }}"
         REACT_APP_API_GATEWAY: "https://${{ env.AWS_API_DOMAIN }}"
         REACT_APP_SPB_SPI: "https://api.spb.cartos.solutions"
         REACT_APP_SPI: "https://api.spi.cartos.solutions"
