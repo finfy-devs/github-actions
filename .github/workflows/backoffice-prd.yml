@@ -62,7 +62,7 @@ jobs:
 
       - name: Set ENV Credentials
         run: |
-          echo "${{ secrets[AWS_CREDENTIALS_CAPITAL_CONSIG] }}"
+          echo "${{ secrets['AWS_CREDENTIALS_CAPITAL_CONSIG'] }}"
           echo "${{ steps.prepare_env.outputs.secret }}"
           secret="${{ secrets[steps.prepare_env.outputs.secret] }}"
           aws_key=$(echo "$secret" | sed -n '1p')
