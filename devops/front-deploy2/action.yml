@@ -77,6 +77,7 @@ runs:
         REACT_APP_SPI: "https://api.spi.cartos.solutions"
         REACT_APP_SHIPPING: "https://boletos.cartos.staging.luby.com.br" # Remessa
         REACT_APP_SITE: "https://api.site.cartos.com.br/graphql"
+        REACT_APP_SHOPKEEPER_API_GATEWAY: "https://${{ env.AWS_STORE_API_DOMAIN }}"
 
     - name: Move dist
       if: "${{ inputs.directory != '' }}"
