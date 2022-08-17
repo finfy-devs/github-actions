@@ -3,22 +3,22 @@ description: ""
 inputs:
   aws_key:
     description: "aws_key"
-    required: true  
+    required: true
   aws_secret:
     description: "aws_secret"
-    required: true  
+    required: true
   theme:
     description: "theme"
-    required: true  
+    required: true
   modules:
     description: "modules"
-    required: true  
+    required: true
   subdomain:
     description: "subdomain"
-    required: true  
+    required: true
   directory:
     description: "directory"
-    required: false  
+    required: false
 runs:
   using: "composite"
   steps:
@@ -38,7 +38,7 @@ runs:
     - name: cache
       uses: actions/cache@v2
       with:
-        path: '**/node_modules'
+        path: "**/node_modules"
         key: ${{ runner.os }}-modules-${{ hashFiles('**/yarn.lock') }}
 
     - uses: actions/setup-node@v2
@@ -47,27 +47,27 @@ runs:
 
     - name: Install dependencies
       shell: bash
-      run: yarn install --production=false
+      run: yarn install --production=true
       env:
-        NODE_ENV: "development"
+        NODE_ENV: "production"
         GENERATE_SOURCEMAP: "false"
 
     - name: AWS - SSM Get Parameters
       uses: dkershner6/aws-ssm-getparameters-action@v1
       with:
-        parameterPairs: '
+        parameterPairs: "
           /cartos/infra/certificate/arn = AWS_CERTIFICATE_ARN,
           /cartos/infra/certificate/domain = AWS_DOMAIN,
           /cartos/infra/api-gateway/domain = AWS_API_DOMAIN,
-          /cartos/store-sellers/api-gateway/domain = AWS_STORE_API_DOMAIN'
-        withDecryption: 'false' # defaults to true
+          /cartos/store-sellers/api-gateway/domain = AWS_STORE_API_DOMAIN"
+        withDecryption: "false" # defaults to true
 
     - name: Build
       shell: bash
       run: yarn build
       env:
-        NODE_ENV: "development"
-        THEME: "${{ inputs.theme }}" 
+        NODE_ENV: "production"
+        THEME: "${{ inputs.theme }}"
         MODULES: "${{ inputs.modules }}"
         GENERATE_SOURCEMAP: "false"
         CI: "false"
