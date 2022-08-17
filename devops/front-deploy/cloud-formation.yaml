@@ -1,4 +1,4 @@
-AWSTemplateFormatVersion: '2010-09-09'
+AWSTemplateFormatVersion: "2010-09-09"
 
 Description: Static website
 
@@ -31,11 +31,11 @@ Resources:
         Fn::Sub: "${AWS::StackName}-root-${AWS::AccountId}"
       LoggingConfiguration:
         DestinationBucketName:
-           Ref: S3BucketLogs
-        LogFilePrefix: 'cdn/'
+          Ref: S3BucketLogs
+        LogFilePrefix: "cdn/"
       WebsiteConfiguration:
-        ErrorDocument: 'index.html'
-        IndexDocument: 'index.html'
+        ErrorDocument: "index.html"
+        IndexDocument: "index.html"
 
   S3BucketPolicy:
     Type: AWS::S3::BucketPolicy
@@ -43,11 +43,11 @@ Resources:
       Bucket:
         Ref: S3BucketRoot
       PolicyDocument:
-        Version: '2012-10-17'
+        Version: "2012-10-17"
         Statement:
-          - Effect: 'Allow'
-            Action: 's3:GetObject'
-            Principal: '*'
+          - Effect: "Allow"
+            Action: "s3:GetObject"
+            Principal: "*"
             Resource:
               Fn::Sub: "${S3BucketRoot.Arn}/*"
 
@@ -61,7 +61,7 @@ Resources:
           - ErrorCachingMinTTL: 60
             ErrorCode: 404
             ResponseCode: 200
-            ResponsePagePath: '/index.html'
+            ResponsePagePath: "/index.html"
         DefaultCacheBehavior:
           AllowedMethods:
             - GET
@@ -77,29 +77,29 @@ Resources:
             QueryString: true
           MaxTTL: 31536000
           SmoothStreaming: false
-          TargetOriginId: !Sub 'S3-${AWS::StackName}-root'
-          ViewerProtocolPolicy: 'redirect-to-https'
-        DefaultRootObject: 'index.html'
+          TargetOriginId: !Sub "S3-${AWS::StackName}-root"
+          ViewerProtocolPolicy: "redirect-to-https"
+        DefaultRootObject: "index.html"
         Enabled: true
         HttpVersion: http2
         IPV6Enabled: true
         Logging:
           Bucket: !GetAtt S3BucketLogs.DomainName
           IncludeCookies: false
-          Prefix: 'cdn/'
+          Prefix: "cdn/"
         Origins:
           - CustomOriginConfig:
               HTTPPort: 80
               HTTPSPort: 443
               OriginKeepaliveTimeout: 5
-              OriginProtocolPolicy: 'https-only'
+              OriginProtocolPolicy: "https-only"
               OriginReadTimeout: 30
               OriginSSLProtocols:
                 - TLSv1
                 - TLSv1.1
                 - TLSv1.2
             DomainName: !GetAtt S3BucketRoot.DomainName
-            Id: !Sub 'S3-${AWS::StackName}-root'
+            Id: !Sub "S3-${AWS::StackName}-root"
         PriceClass: PriceClass_All
         ViewerCertificate:
           AcmCertificateArn: #'{{resolve:ssm:/cartos/infra/certificate/arn}}'
@@ -110,7 +110,7 @@ Resources:
   Route53RecordSetGroup:
     Type: AWS::Route53::RecordSetGroup
     Properties:
-      HostedZoneName: !Sub '${HostedZoneName}.'
+      HostedZoneName: !Sub "${HostedZoneName}."
       RecordSets:
         - Name: !Ref DomainName
           Type: A
@@ -122,16 +122,32 @@ Resources:
   SSMS3BucketName:
     Type: AWS::SSM::Parameter
     Properties:
-      Name: 
+      Name:
         Fn::Sub: "/front/${AWS::StackName}/s3-bucket"
       Type: String
       Value:
         Ref: S3BucketRoot
 
+  SSMS3BucketLogsDomainName:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name:
+        Fn::Sub: "/front/${AWS::StackName}/s3-bucket-logs-domain"
+      Type: String
+      Value: !GetAtt S3BucketLogs.DomainName
+
+  SSMS3BucketDomainName:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name:
+        Fn::Sub: "/front/${AWS::StackName}/s3-bucket-domain"
+      Type: String
+      Value: !GetAtt S3BucketRoot.DomainName
+
   SSMCloudFrontDistribution:
     Type: AWS::SSM::Parameter
     Properties:
-      Name: 
+      Name:
         Fn::Sub: "/front/${AWS::StackName}/cloudfront-distribution-id"
       Type: String
       Value:
