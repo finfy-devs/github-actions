@@ -47,7 +47,7 @@ runs:
 
     - name: Install dependencies
       shell: bash
-      run: yarn install --production=true
+      run: yarn install --production=false
       env:
         NODE_ENV: "production"
         GENERATE_SOURCEMAP: "false"
