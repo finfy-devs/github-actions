@@ -67,6 +67,7 @@ runs:
       run: yarn build
       env:
         NODE_ENV: "production"
+        FRONT_STG: "production"
         THEME: "${{ inputs.theme }}"
         MODULES: "${{ inputs.modules }}"
         GENERATE_SOURCEMAP: "false"
