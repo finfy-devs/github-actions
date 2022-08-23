@@ -60,6 +60,7 @@ jobs:
         run: yarn build
         env:
           NODE_ENV: "development"
+          FRONT_STG: "development"
           THEME: "${{ inputs.theme }}"
           MODULES: "${{ inputs.modules }}"
           GENERATE_SOURCEMAP: "false"
