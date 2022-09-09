@@ -20,10 +20,6 @@ on:
         required: false
         type: string
         default: serverless-vpc-connector
-      http_port:
-        required: false
-        type: string
-        default: 8080
     secrets:
       GCP_CREDENTIALS:
         required: true
@@ -93,5 +89,4 @@ jobs:
           --region ${{ inputs.region }} \
           --platform managed \
           --update-secrets "${{ inputs.run_secrets }}" \
-          --set-env-vars PORT=${{ inputs.http_port }} \
           --vpc-connector ${{ inputs.vpc_connector }} \
