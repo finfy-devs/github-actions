@@ -15,6 +15,9 @@ on:
       run_secrets:
         required: false
         type: string
+      run_envs:
+        required: false
+        type: string
       region:
         required: false
         type: string
@@ -93,4 +96,5 @@ jobs:
           --platform managed \
           --update-secrets "${{ inputs.run_secrets }}" \
           --set-env-vars DATABASE_NAME=${{ inputs.db_name }} \
+          --update-env-vars "${{ inputs.run_envs }}" \
           --vpc-connector ${{ inputs.vpc_connector }} \
