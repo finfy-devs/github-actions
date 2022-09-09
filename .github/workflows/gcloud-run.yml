@@ -95,6 +95,5 @@ jobs:
           --region ${{ inputs.region }} \
           --platform managed \
           --update-secrets "${{ inputs.run_secrets }}" \
-          --set-env-vars DATABASE_NAME=${{ inputs.db_name }} \
-          --update-env-vars "${{ inputs.run_envs }}" \
+          --update-env-vars "DATABASE_NAME=${{ inputs.db_name }},${{ inputs.run_envs }}" \
           --vpc-connector ${{ inputs.vpc_connector }} \
