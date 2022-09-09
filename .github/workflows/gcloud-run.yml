@@ -1,0 +1,92 @@
+name: Deploy CGP
+
+on:
+  workflow_call:
+    inputs:
+      ms_name:
+        required: false
+        type: string
+      db_instance:
+        required: false
+        type: string
+      run_secrets:
+        required: false
+        type: string
+      region:
+        required: false
+        type: string
+        default: us-central1
+      vpc_connector:
+        required: false
+        type: string
+        default: serverless-vpc-connector
+    secrets:
+      GCP_CREDENTIALS:
+        required: true
+
+jobs:
+  deploy:
+    name: Deploy Gcloud
+    runs-on: ubuntu-latest
+    env:
+      MS_NAME: ${{ inputs.ms_name }}
+
+    steps:
+    - uses: actions/checkout@v3
+      with:
+        persist-credentials: false
+
+    - uses: actions/setup-node@v2
+      with:
+        node-version: '16'
+
+    - name: Install dependencies
+      run: yarn install --frozen-lockfile
+
+    - name: Build 
+      run: yarn build
+
+    - id: 'auth'
+      name: 'Authenticate to Google Cloud'
+      uses: 'google-github-actions/auth@v0'
+      with:
+        credentials_json: '${{ secrets.GCP_CREDENTIALS }}'
+
+    - name: 'Set up Cloud SDK'
+      uses: 'google-github-actions/setup-gcloud@v0'
+
+    - name: 'Get gcp project'
+      id: gcp_project
+      run: |
+          gcp_project_id=$(gcloud config get-value project) 
+          echo "${gcp_project_id}"
+          echo "::set-output name=id::${gcp_project_id}"
+    
+    - name: 'Set gcp image'
+      id: gcp_image
+      run: |
+          echo "${{ steps.gcp_project.outputs.id }}"
+          gcp_image_name=gcr.io/${{ steps.gcp_project.outputs.id }}/$MS_NAME
+          echo "${gcp_image_name}"
+          echo "::set-output name=name::${gcp_image_name}"
+
+    - name: Configure Docker
+      run: gcloud auth configure-docker --quiet
+
+    - name: Build Docker image
+      run: docker build . -t ${{ steps.gcp_image.outputs.name }}
+
+    - name: Create Database
+      run: gcloud sql databases create $MS_NAME --instance=${{ inputs.db_instance }} || true
+
+    - name: Push Docker image
+      run: docker push ${{ steps.gcp_image.outputs.name }}
+
+    - name: Deploy Docker image
+      run: |
+        gcloud run deploy $MS_NAME \
+          --image ${{ steps.gcp_image.outputs.name }} \
+          --region ${{ inputs.region }} \
+          --platform managed \
+          --update-secrets "${{ inputs.run_secrets }}" \
+          --vpc-connector ${{ inputs.vpc_connector }} \
