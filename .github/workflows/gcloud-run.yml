@@ -4,10 +4,13 @@ on:
   workflow_call:
     inputs:
       ms_name:
-        required: false
+        required: true
         type: string
       db_instance:
-        required: false
+        required: true
+        type: string
+      db_name:
+        required: true
         type: string
       run_secrets:
         required: false
@@ -77,7 +80,7 @@ jobs:
       run: docker build . -t ${{ steps.gcp_image.outputs.name }}
 
     - name: Create Database
-      run: gcloud sql databases create $MS_NAME --instance=${{ inputs.db_instance }} || true
+      run: gcloud sql databases create ${{ inputs.db_name }} --instance=${{ inputs.db_instance }} || true
 
     - name: Push Docker image
       run: docker push ${{ steps.gcp_image.outputs.name }}
@@ -89,4 +92,5 @@ jobs:
           --region ${{ inputs.region }} \
           --platform managed \
           --update-secrets "${{ inputs.run_secrets }}" \
+          --set-env-vars DATABASE_NAME=${{ inputs.db_name }} \
           --vpc-connector ${{ inputs.vpc_connector }} \
