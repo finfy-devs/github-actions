@@ -31,12 +31,13 @@ on:
         required: true
 
 jobs:
-  deploy:
-    name: Deploy Gcloud
+
+  build:
+    name: Build
     runs-on: ubuntu-latest
     env:
       MS_NAME: ${{ inputs.ms_name }}
-
+    
     steps:
     - uses: actions/checkout@v3
       with:
@@ -48,6 +49,12 @@ jobs:
 
     - name: Install dependencies
       run: yarn install --frozen-lockfile
+
+    - name: Typecheck 
+      run: yarn typecheck
+    
+    - name: Test 
+      run: yarn test
 
     - name: Build 
       run: yarn build
@@ -82,18 +89,70 @@ jobs:
     - name: Build Docker image
       run: docker build . -t ${{ steps.gcp_image.outputs.name }}
 
-    - name: Create Database
-      run: gcloud sql databases create ${{ inputs.db_name }} --instance=${{ inputs.db_instance }} || true
-
     - name: Push Docker image
       run: docker push ${{ steps.gcp_image.outputs.name }}
 
-    - name: Deploy Docker image
+    - name: Create Database
+      run: gcloud sql databases create ${{ inputs.db_name }} --instance=${{ inputs.db_instance }} || true
+
+  deploy-http:
+    name: Deploy Gcloud HTTP
+    runs-on: ubuntu-latest
+    needs: build
+    env:
+      IMAGE: ${{ needs.gcp_image.outputs.name }}
+      MS_NAME: ${{ inputs.ms_name }}
+      REGION: ${{ inputs.region }}
+      DB_NAME: ${{ inputs.db_name  }}
+      ENTRY_POINT: http
+      RUN_SECRETS: ${{ inputs.run_secrets }}
+      RUN_ENVS: ${{ inputs.run_envs }}
+      VPC_CONNECTOR: ${{ inputs.vpc_connector }}
+
+    steps:
+    - id: 'auth'
+      name: 'Authenticate to Google Cloud'
+      uses: 'google-github-actions/auth@v0'
+      with:
+        credentials_json: '${{ secrets.GCP_CREDENTIALS }}'
+
+    - name: Deploy http server
       run: |
         gcloud run deploy $MS_NAME \
-          --image ${{ steps.gcp_image.outputs.name }} \
-          --region ${{ inputs.region }} \
+          --image $IMAGE \
+          --region $REGION \
           --platform managed \
-          --update-secrets "${{ inputs.run_secrets }}" \
-          --update-env-vars "DATABASE_NAME=${{ inputs.db_name }},${{ inputs.run_envs }}" \
-          --vpc-connector ${{ inputs.vpc_connector }} \
+          --update-secrets "$RUN_SECRETS" \
+          --update-env-vars "ENTRY_POINT=$ENTRY_POINT,DATABASE_NAME=$DB_NAME,$RUN_ENVS" \
+          --vpc-connector $VPC_CONNECTOR \
+
+  deploy-grpc:
+    name: Deploy Gcloud GRPC
+    runs-on: ubuntu-latest
+    needs: build
+    env:
+      IMAGE: ${{ needs.gcp_image.outputs.name }}
+      MS_NAME: ${{ inputs.ms_name }}
+      REGION: ${{ inputs.region }}
+      DB_NAME: ${{ inputs.db_name  }}
+      ENTRY_POINT: grpc
+      RUN_SECRETS: ${{ inputs.run_secrets }}
+      RUN_ENVS: ${{ inputs.run_envs }}
+      VPC_CONNECTOR: ${{ inputs.vpc_connector }}
+
+    steps:
+    - id: 'auth'
+      name: 'Authenticate to Google Cloud'
+      uses: 'google-github-actions/auth@v0'
+      with:
+        credentials_json: '${{ secrets.GCP_CREDENTIALS }}'
+
+    - name: Deploy http server
+      run: |
+        gcloud run deploy $MS_NAME-grpc \
+          --image $IMAGE \
+          --region $REGION \
+          --platform managed \
+          --update-secrets "$RUN_SECRETS" \
+          --update-env-vars "ENTRY_POINT=$ENTRY_POINT,DATABASE_NAME=$DB_NAME,$RUN_ENVS" \
+          --vpc-connector $VPC_CONNECTOR \
