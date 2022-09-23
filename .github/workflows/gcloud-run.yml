@@ -154,7 +154,6 @@ jobs:
           --image $IMAGE \
           --region $REGION \
           --platform managed \
-          --use-http2 \
           --update-secrets "$RUN_SECRETS" \
           --update-env-vars "ENTRY_POINT=$ENTRY_POINT,DATABASE_NAME=$DB_NAME,$RUN_ENVS" \
           --vpc-connector $VPC_CONNECTOR \
