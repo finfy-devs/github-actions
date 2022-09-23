@@ -81,16 +81,16 @@ jobs:
           echo "${{ steps.gcp_project.outputs.id }}"
           gcp_image_name=gcr.io/${{ steps.gcp_project.outputs.id }}/$MS_NAME
           echo "${gcp_image_name}"
-          echo "::set-output name=name::${gcp_image_name}"
+          echo "::set-output name=image_name::${gcp_image_name}"
 
     - name: Configure Docker
       run: gcloud auth configure-docker --quiet
 
     - name: Build Docker image
-      run: docker build . -t ${{ steps.gcp_image.outputs.name }}
+      run: docker build . -t ${{ steps.gcp_image.outputs.image_name }}
 
     - name: Push Docker image
-      run: docker push ${{ steps.gcp_image.outputs.name }}
+      run: docker push ${{ steps.gcp_image.outputs.image_name }}
 
     - name: Create Database
       run: gcloud sql databases create ${{ inputs.db_name }} --instance=${{ inputs.db_instance }} || true
@@ -100,7 +100,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: build
     env:
-      IMAGE: ${{ needs.gcp_image.outputs.name }}
+      IMAGE: ${{ needs.build.outputs.image_name }}
       MS_NAME: ${{ inputs.ms_name }}
       REGION: ${{ inputs.region }}
       DB_NAME: ${{ inputs.db_name  }}
