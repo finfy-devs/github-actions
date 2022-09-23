@@ -148,12 +148,13 @@ jobs:
       with:
         credentials_json: '${{ secrets.GCP_CREDENTIALS }}'
 
-    - name: Deploy http server
+    - name: Deploy grpc server
       run: |
         gcloud run deploy $MS_NAME-grpc \
           --image $IMAGE \
           --region $REGION \
           --platform managed \
+          --use-http2 \
           --update-secrets "$RUN_SECRETS" \
           --update-env-vars "ENTRY_POINT=$ENTRY_POINT,DATABASE_NAME=$DB_NAME,$RUN_ENVS" \
           --vpc-connector $VPC_CONNECTOR \
