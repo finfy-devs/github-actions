@@ -68,3 +68,4 @@ jobs:
       with:
         path: 'dist'
         destination: '${{ inputs.bucket_name }}/${{ inputs.directory }}'
+        parent: false
