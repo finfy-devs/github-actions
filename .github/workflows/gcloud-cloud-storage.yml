@@ -3,8 +3,8 @@ name: Deploy CGP
 on:
   workflow_call:
     inputs:
-      app_host:
-        required: true
+      base_url:
+        required: false
         type: string
       bucket_name:
         required: false
@@ -43,7 +43,7 @@ jobs:
       env:
         NODE_ENV: "production"
         FRONT_STG: "production"
-        REACT_APP_HOST: "${{ inputs.app_host }}"
+        REACT_ENV_BASE_URL: "${{ inputs.base_url }}"
 
     - id: 'auth'
       name: 'Authenticate to Google Cloud'
