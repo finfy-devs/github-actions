@@ -44,6 +44,9 @@ jobs:
         NODE_ENV: "production"
         FRONT_STG: "production"
         REACT_ENV_BASE_URL: "${{ inputs.base_url }}"
+        MS_BACKOFFICE_USERS_URL: "${{ inputs.base_url }}"
+        MS_USERS_URL: "${{ inputs.base_url }}"
+        MS_CREDIT_ENGINE_URL: "${{ inputs.base_url }}"
 
     - id: 'auth'
       name: 'Authenticate to Google Cloud'
