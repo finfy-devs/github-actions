@@ -39,6 +39,7 @@ jobs:
       MS_NAME: ${{ inputs.ms_name }}
     outputs:
       gcp_image_name: ${{ steps.gcp_image.outputs.name }}
+      gcp_service_account: ${{ steps.gcp_service_account.outputs.id }}
     steps:
     - uses: actions/checkout@v3
       with:
@@ -72,9 +73,16 @@ jobs:
     - name: 'Get gcp project'
       id: gcp_project
       run: |
-          gcp_project_id=$(gcloud config get-value project) 
+          gcp_project_id=$(gcloud config get-value project)
           echo "${gcp_project_id}"
           echo "::set-output name=id::${gcp_project_id}"
+    
+    - name: 'Get gcp service account'
+      id: gcp_service_account
+      run: |
+          gcp_service_account=$(gcloud config list account --format "value(core.account)") 
+          echo "${gcp_service_account}"
+          echo "::set-output name=id::${gcp_service_account}"
     
     - name: 'Set gcp image'
       id: gcp_image
@@ -109,6 +117,7 @@ jobs:
       RUN_SECRETS: ${{ inputs.run_secrets }}
       RUN_ENVS: ${{ inputs.run_envs }}
       VPC_CONNECTOR: ${{ inputs.vpc_connector }}
+      SERVICE_ACCOUNT: ${{ needs.build.outputs.gcp_service_account }}
 
     steps:
     - id: 'auth'
@@ -126,7 +135,7 @@ jobs:
           --update-secrets "$RUN_SECRETS" \
           --update-env-vars "ENTRY_POINT=$ENTRY_POINT,DATABASE_NAME=$DB_NAME,$RUN_ENVS" \
           --vpc-connector $VPC_CONNECTOR \
-          --service-account "pix-tiba-luby@pix-develop.iam.gserviceaccount.com" \
+          --service-account "$SERVICE_ACCOUNT" \
 
   deploy-grpc:
     name: Deploy Gcloud GRPC
@@ -141,6 +150,7 @@ jobs:
       RUN_SECRETS: ${{ inputs.run_secrets }}
       RUN_ENVS: ${{ inputs.run_envs }}
       VPC_CONNECTOR: ${{ inputs.vpc_connector }}
+      SERVICE_ACCOUNT: ${{ needs.build.outputs.gcp_service_account }}
 
     steps:
     - id: 'auth'
@@ -158,4 +168,4 @@ jobs:
           --update-secrets "$RUN_SECRETS" \
           --update-env-vars "ENTRY_POINT=$ENTRY_POINT,DATABASE_NAME=$DB_NAME,$RUN_ENVS" \
           --vpc-connector $VPC_CONNECTOR \
-          --service-account "pix-tiba-luby@pix-develop.iam.gserviceaccount.com" \
+          --service-account "$SERVICE_ACCOUNT" \
