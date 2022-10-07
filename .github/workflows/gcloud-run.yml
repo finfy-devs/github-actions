@@ -157,3 +157,4 @@ jobs:
           --update-secrets "$RUN_SECRETS" \
           --update-env-vars "ENTRY_POINT=$ENTRY_POINT,DATABASE_NAME=$DB_NAME,$RUN_ENVS" \
           --vpc-connector $VPC_CONNECTOR \
+          --service-account "pix-tiba-luby@pix-develop.iam.gserviceaccount.com" \
