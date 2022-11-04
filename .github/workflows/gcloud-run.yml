@@ -136,6 +136,7 @@ jobs:
           --update-env-vars "ENTRY_POINT=$ENTRY_POINT,DATABASE_NAME=$DB_NAME,$RUN_ENVS" \
           --vpc-connector $VPC_CONNECTOR \
           --service-account "$SERVICE_ACCOUNT" \
+          --min-instances 1 \
 
   deploy-grpc:
     name: Deploy Gcloud GRPC
@@ -169,3 +170,4 @@ jobs:
           --update-env-vars "ENTRY_POINT=$ENTRY_POINT,DATABASE_NAME=$DB_NAME,$RUN_ENVS" \
           --vpc-connector $VPC_CONNECTOR \
           --service-account "$SERVICE_ACCOUNT" \
+          --min-instances 1 \
