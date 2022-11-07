@@ -35,7 +35,6 @@ on:
         required: true
 
 env:
-  NODE_ENV: ${{ inputs.mode }}
   MS_NAME: ${{ inputs.ms_name }}
   REGION: ${{ inputs.region }}
   DB_NAME: ${{ inputs.db_name  }}
@@ -71,6 +70,8 @@ jobs:
 
     - name: Build 
       run: yarn build
+      env:
+        NODE_ENV: ${{ inputs.mode }}
 
     - id: 'auth'
       name: 'Authenticate to Google Cloud'
