@@ -1,0 +1,155 @@
+
+
+name: Deploy Cloud Job With Schedule
+on: 
+  workflow_call:
+    inputs:
+      mode:
+        required: true
+        type: string
+        default: development
+      job_name:
+        required: true
+        type: string
+      db_name:
+        required: true
+        type: string
+      run_secrets:
+        required: false
+        type: string
+      run_envs:
+        required: false
+        type: string
+      region:
+        required: false
+        type: string
+        default: us-central1
+    secrets:
+      GCP_CREDENTIALS:
+        required: true
+
+env:
+  JOB_NAME: ${{ inputs.job_name }}
+  REGION: ${{ inputs.region }}
+  DB_NAME: ${{ inputs.db_name  }}
+  RUN_SECRETS: ${{ inputs.run_secrets }}
+  RUN_ENVS: ${{ inputs.run_envs }}
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    outputs:
+      gcp_image_name: ${{ steps.gcp_image.outputs.name }}
+      gcp_project_name: ${{ steps.gcp_project.outputs.id }}
+      gcp_project_number: ${{ steps.gcp_project_number.outputs.id }}
+      gcp_service_account: ${{ steps.gcp_service_account.outputs.id }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@master
+
+      - uses: actions/setup-node@v2
+        with:
+          node-version: '16'
+
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
+
+      - name: Typecheck 
+        run: yarn typecheck
+      
+      - name: Test 
+        run: yarn test
+
+      - name: Build 
+        run: yarn build
+
+      # Setup gcloud CLI
+      - id: 'auth'
+        uses: 'google-github-actions/auth@v1'
+        with:
+          credentials_json: '${{ secrets.GCP_CREDENTIALS }}'
+
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v1
+
+      - name: 'Get gcp project'
+        id: gcp_project
+        run: |
+          gcp_project_id=$(gcloud config get-value project)
+          echo "${gcp_project_id}"
+          echo "::set-output name=id::${gcp_project_id}"
+
+      - name: 'Get gcp project number'
+        id: gcp_project_number
+        run: |
+          gcp_project_number=$(gcloud projects list --filter="$(gcloud config get-value project)"--format="value(PROJECT_NUMBER)")
+          echo "${gcp_project_number}"
+          echo "::set-output name=id::${gcp_project_number}"
+      
+      - name: 'Get gcp service account'
+        id: gcp_service_account
+        run: |
+            gcp_service_account=$(gcloud config list account --format "value(core.account)") 
+            echo "${gcp_service_account}"
+            echo "::set-output name=id::${gcp_service_account}"
+      
+      - name: 'Set gcp image'
+        id: gcp_image
+        run: |
+            echo "${{ steps.gcp_project.outputs.id }}"
+            gcp_image_name=gcr.io/${{ steps.gcp_project.outputs.id }}/$MS_NAME
+            echo "${gcp_image_name}"
+            echo "::set-output name=name::${gcp_image_name}"
+        
+      # Configure Docker with Credentials
+      - name: Configure Docker
+        run: gcloud auth configure-docker
+          
+      # Build the Docker image
+      - name: Build Docker image
+        run: docker build . -t ${{ steps.gcp_image.outputs.name }}
+
+      - name: Push Docker image 
+        run: docker push ${{ steps.gcp_image.outputs.name }}
+        
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build
+    env:
+      JOB_NAME: ${{ inputs.job_name }}
+      IMAGE: ${{ needs.build.outputs.gcp_image_name }}
+      GCP_PROJEC_NAME: ${{ needs.build.outputs.gcp_project_name }}
+      GCP_PROJEC_NUMBER: ${{ needs.build.outputs.gcp_project_number }}
+    steps:
+      # Setup gcloud CLI
+      - id: 'auth'
+        uses: 'google-github-actions/auth@v1'
+        with:
+          credentials_json: '${{ secrets.GCP_CREDENTIALS }}'
+
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v1
+        
+
+      - name: Setup gcloud beta
+        run: gcloud config set run/region ${{ inputs.region }} && gcloud components install beta
+
+      # Deploy the Docker image to the GKE cluster
+      - name: Create Job
+        run: gcloud beta run jobs create go-job --image=$IMAGE
+        continue-on-error: true
+          
+      - name: Update Job
+        run: gcloud beta run jobs update go-job --image=$IMAGE
+
+      - name: Create Scheduled Job
+        continue-on-error: true
+        run:  |
+          gcloud scheduler jobs create http $JOB_NAME-scheduler \
+            --location ${{ inputs.region }} \
+            --schedule="* * * * *" \
+            --uri="https://us-central1-run.googleapis.com/apis/run.googleapis.com/v1/namespaces/$GCP_PROJEC_NAME/jobs/$JOB_NAME:run" \
+            --http-method POST \
+            --oauth-service-account-email $GCP_PROJEC_NUMBER-compute@developer.gserviceaccount.com
+            
+ 
