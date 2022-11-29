@@ -11,6 +11,9 @@ on:
       job_name:
         required: true
         type: string
+      job_entrypoint:
+        required: true
+        type: string
       db_name:
         required: true
         type: string
@@ -30,6 +33,7 @@ on:
 
 env:
   JOB_NAME: ${{ inputs.job_name }}
+  JOB_ENTRYPOINT: ${{ inputs.job_entrypoint }}
   REGION: ${{ inputs.region }}
   DB_NAME: ${{ inputs.db_name  }}
   RUN_SECRETS: ${{ inputs.run_secrets }}
@@ -38,6 +42,8 @@ env:
 jobs:
   build:
     runs-on: ubuntu-latest
+    env:
+      JOB_ENTRYPOINT: ${{ inputs.job_entrypoint }}
     outputs:
       gcp_image_name: ${{ steps.gcp_image.outputs.name }}
       gcp_project_name: ${{ steps.gcp_project.outputs.id }}
@@ -61,8 +67,8 @@ jobs:
         run: yarn test
 
       - name: Build 
-        run: yarn build
-
+        run: JOB_ENTRYPOINT=$JOB_ENTRYPOINT yarn build
+        
       # Setup gcloud CLI
       - id: 'auth'
         uses: 'google-github-actions/auth@v1'
