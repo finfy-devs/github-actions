@@ -14,6 +14,9 @@ on:
       job_entrypoint:
         required: true
         type: string
+      schedule:
+        required: true
+        type: string
       db_name:
         required: true
         type: string
@@ -127,6 +130,7 @@ jobs:
     env:
       REGION: ${{ inputs.region }}
       JOB_NAME: ${{ inputs.job_name }}
+      DB_NAME: ${{ inputs.db_name  }}
       IMAGE: ${{ needs.build.outputs.gcp_image_name }}
       GCP_PROJEC_NAME: ${{ needs.build.outputs.gcp_project_name }}
       GCP_PROJEC_NUMBER: ${{ needs.build.outputs.gcp_project_number }}
@@ -146,20 +150,29 @@ jobs:
 
       # Deploy the Docker image to the GKE cluster
       - name: Create Job
-        run: gcloud beta run jobs create $JOB_NAME --image=$IMAGE
+        run: |
+          gcloud beta run jobs create $JOB_NAME \ 
+            --image=$IMAGE \ 
+            --set-secrets "$RUN_SECRETS" \
+            --update-env-vars "DATABASE_NAME=$DB_NAME,$RUN_ENVS" 
         continue-on-error: true
           
       - name: Update Job
-        run: gcloud beta run jobs update $JOB_NAME --image=$IMAGE
+        run: |
+          gcloud beta run jobs update $JOB_NAME \ 
+            --image=$IMAGE \ 
+            --set-secrets "$RUN_SECRETS" \
+            --update-env-vars "DATABASE_NAME=$DB_NAME,$RUN_ENVS" 
 
       - name: Create Scheduled Job
         continue-on-error: true
         run:  |
           gcloud scheduler jobs create http $JOB_NAME-scheduler \
             --location $REGION \
-            --schedule="* * * * *" \
+            --schedule="${{ inputs.schedule }}" \
             --uri="https://$REGION-run.googleapis.com/apis/run.googleapis.com/v1/namespaces/$GCP_PROJEC_NAME/jobs/$JOB_NAME:run" \
             --http-method POST \
             --oauth-service-account-email $GCP_PROJEC_NUMBER-compute@developer.gserviceaccount.com
+           
             
  
