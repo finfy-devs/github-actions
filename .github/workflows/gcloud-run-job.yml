@@ -104,7 +104,7 @@ jobs:
         id: gcp_image
         run: |
             echo "${{ steps.gcp_project.outputs.id }}"
-            gcp_image_name=gcr.io/${{ steps.gcp_project.outputs.id }}/$MS_NAME
+            gcp_image_name=gcr.io/${{ steps.gcp_project.outputs.id }}/$JOB_NAME
             echo "${gcp_image_name}"
             echo "::set-output name=name::${gcp_image_name}"
         
