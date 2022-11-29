@@ -44,6 +44,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       JOB_ENTRYPOINT: ${{ inputs.job_entrypoint }}
+      JOB_NAME: ${{ inputs.job_name }}
     outputs:
       gcp_image_name: ${{ steps.gcp_image.outputs.name }}
       gcp_project_name: ${{ steps.gcp_project.outputs.id }}
