@@ -91,7 +91,7 @@ jobs:
       - name: 'Get gcp project number'
         id: gcp_project_number
         run: |
-          gcp_project_number=$(gcloud projects list --filter="$(gcloud config get-value project)"--format="value(PROJECT_NUMBER)")
+          gcp_project_number=$(gcloud projects list --filter="$(gcloud config get-value project)" --format="value(PROJECT_NUMBER)")
           echo "${gcp_project_number}"
           echo "::set-output name=id::${gcp_project_number}"
       
@@ -125,6 +125,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: build
     env:
+      REGION: ${{ inputs.region }}
       JOB_NAME: ${{ inputs.job_name }}
       IMAGE: ${{ needs.build.outputs.gcp_image_name }}
       GCP_PROJEC_NAME: ${{ needs.build.outputs.gcp_project_name }}
@@ -141,7 +142,7 @@ jobs:
         
 
       - name: Setup gcloud beta
-        run: gcloud config set run/region ${{ inputs.region }} && gcloud components install beta
+        run: gcloud config set run/region $REGION && gcloud components install beta
 
       # Deploy the Docker image to the GKE cluster
       - name: Create Job
@@ -155,10 +156,10 @@ jobs:
         continue-on-error: true
         run:  |
           gcloud scheduler jobs create http $JOB_NAME-scheduler \
-            --location ${{ inputs.region }} \
+            --location $REGION \
             --schedule="* * * * *" \
-            --uri="https://${{ inputs.region }}-run.googleapis.com/apis/run.googleapis.com/v1/namespaces/$GCP_PROJEC_NAME/jobs/$JOB_NAME:run" \
+            --uri="https://$REGION-run.googleapis.com/apis/run.googleapis.com/v1/namespaces/$GCP_PROJEC_NAME/jobs/$JOB_NAME:run" \
             --http-method POST \
-            --oauth-service-account-email ${{ needs.build.outputs.gcp_project_number }}-compute@developer.gserviceaccount.com
+            --oauth-service-account-email $GCP_PROJEC_NUMBER-compute@developer.gserviceaccount.com
             
  
