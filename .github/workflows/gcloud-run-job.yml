@@ -45,6 +45,7 @@ jobs:
     env:
       JOB_ENTRYPOINT: ${{ inputs.job_entrypoint }}
       JOB_NAME: ${{ inputs.job_name }}
+      DB_NAME: ${{ inputs.db_name  }}
     outputs:
       gcp_image_name: ${{ steps.gcp_image.outputs.name }}
       gcp_project_name: ${{ steps.gcp_project.outputs.id }}
@@ -69,7 +70,7 @@ jobs:
         run: yarn test
 
       - name: Build 
-        run: JOB_ENTRYPOINT=$JOB_ENTRYPOINT yarn build --config webpack.job.js
+        run: DATABASE_NAME=$DB_NAME JOB_ENTRYPOINT=$JOB_ENTRYPOINT yarn build --config webpack.job.js
         
       # Setup gcloud CLI
       - id: 'auth'
@@ -156,8 +157,8 @@ jobs:
           gcloud scheduler jobs create http $JOB_NAME-scheduler \
             --location ${{ inputs.region }} \
             --schedule="* * * * *" \
-            --uri="https://us-central1-run.googleapis.com/apis/run.googleapis.com/v1/namespaces/$GCP_PROJEC_NAME/jobs/$JOB_NAME:run" \
+            --uri="https://${{ inputs.region }}-run.googleapis.com/apis/run.googleapis.com/v1/namespaces/$GCP_PROJEC_NAME/jobs/$JOB_NAME:run" \
             --http-method POST \
-            --oauth-service-account-email $GCP_PROJEC_NUMBER-compute@developer.gserviceaccount.com
+            --oauth-service-account-email ${{ needs.build.outputs.gcp_project_number }}-compute@developer.gserviceaccount.com
             
  
