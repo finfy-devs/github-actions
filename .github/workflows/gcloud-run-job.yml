@@ -67,7 +67,7 @@ jobs:
         run: yarn test
 
       - name: Build 
-        run: JOB_ENTRYPOINT=$JOB_ENTRYPOINT yarn build
+        run: JOB_ENTRYPOINT=$JOB_ENTRYPOINT yarn build --config webpack.job.js
         
       # Setup gcloud CLI
       - id: 'auth'
