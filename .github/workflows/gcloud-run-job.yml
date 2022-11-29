@@ -151,18 +151,18 @@ jobs:
       # Deploy the Docker image to the GKE cluster
       - name: Create Job
         run: |
-          gcloud beta run jobs create $JOB_NAME \ 
-            --image=$IMAGE \ 
+          gcloud beta run jobs create $JOB_NAME \
+            --image=$IMAGE \
             --set-secrets "$RUN_SECRETS" \
-            --update-env-vars "DATABASE_NAME=$DB_NAME,$RUN_ENVS" 
+            --set-env-vars "DATABASE_NAME=$DB_NAME,$RUN_ENVS"
         continue-on-error: true
           
       - name: Update Job
         run: |
-          gcloud beta run jobs update $JOB_NAME \ 
-            --image=$IMAGE \ 
+          gcloud beta run jobs update $JOB_NAME \
+            --image=$IMAGE \
             --set-secrets "$RUN_SECRETS" \
-            --update-env-vars "DATABASE_NAME=$DB_NAME,$RUN_ENVS" 
+            --update-env-vars "DATABASE_NAME=$DB_NAME,$RUN_ENVS"
 
       - name: Create Scheduled Job
         continue-on-error: true
