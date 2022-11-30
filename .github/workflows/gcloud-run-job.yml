@@ -135,6 +135,7 @@ jobs:
       REGION: ${{ inputs.region }}
       JOB_NAME: ${{ inputs.job_name }}
       DB_NAME: ${{ inputs.db_name  }}
+      VPC_CONNECTOR: ${{ inputs.vpc_connector  }}
       IMAGE: ${{ needs.build.outputs.gcp_image_name }}
       GCP_PROJEC_NAME: ${{ needs.build.outputs.gcp_project_name }}
       GCP_PROJEC_NUMBER: ${{ needs.build.outputs.gcp_project_number }}
