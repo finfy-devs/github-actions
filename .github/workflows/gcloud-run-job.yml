@@ -139,6 +139,7 @@ jobs:
       IMAGE: ${{ needs.build.outputs.gcp_image_name }}
       GCP_PROJEC_NAME: ${{ needs.build.outputs.gcp_project_name }}
       GCP_PROJEC_NUMBER: ${{ needs.build.outputs.gcp_project_number }}
+      SERVICE_ACCOUNT: ${{ needs.build.outputs.gcp_service_account }}
     steps:
       # Setup gcloud CLI
       - id: 'auth'
@@ -160,6 +161,7 @@ jobs:
             --image=$IMAGE \
             --set-secrets "$RUN_SECRETS" \
             --vpc-connector $VPC_CONNECTOR \
+            --service-account "$SERVICE_ACCOUNT" \
             --set-env-vars "DATABASE_NAME=$DB_NAME,$RUN_ENVS"
         continue-on-error: true
           
@@ -169,6 +171,7 @@ jobs:
             --image=$IMAGE \
             --set-secrets "$RUN_SECRETS" \
             --vpc-connector $VPC_CONNECTOR \
+            --service-account "$SERVICE_ACCOUNT" \
             --update-env-vars "DATABASE_NAME=$DB_NAME,$RUN_ENVS"
 
       - name: Create Scheduled Job
