@@ -22,7 +22,7 @@ jobs:
       - name: Fetch API Config 📦
         uses: JamesIves/fetch-api-data-action@v2.2.2
         with:
-          endpoint: https://backoffice.dev.cartos.solutions/deployment-config-v2.json
+          endpoint: https://backoffice.dev.cartos.solutions/deployment-config-v3.json
           configuration: '{ "method": "GET", "headers": {} }'
 
       # - name: Checkout
