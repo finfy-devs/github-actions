@@ -53,6 +53,7 @@ jobs:
             /cartos/infra/certificate/arn = AWS_CERTIFICATE_ARN,
             /cartos/infra/certificate/domain = AWS_DOMAIN,
             /cartos/infra/api-gateway/domain = AWS_API_DOMAIN,
+            /finfy/infra/api-gateway-backoffice/domain = AWS_API_BKO_DOMAIN,
             /cartos/store-sellers/api-gateway/domain = AWS_STORE_API_DOMAIN"
           withDecryption: "false" # defaults to true
 
@@ -65,6 +66,7 @@ jobs:
           MODULES: "${{ inputs.modules }}"
           GENERATE_SOURCEMAP: "false"
           CI: "false"
+          REACT_APP_API_BKO_GATEWAYY: "https://${{ env.AWS_API_BKO_DOMAIN }}"
           REACT_APP_API_GATEWAY: "https://${{ env.AWS_API_DOMAIN }}"
           REACT_APP_SPB_SPI: "https://api.spb.cartos.solutions"
           REACT_APP_SPI: "https://api.spi.cartos.solutions"
