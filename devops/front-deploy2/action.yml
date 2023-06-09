@@ -19,6 +19,18 @@ inputs:
   directory:
     description: "directory"
     required: false
+  bacen_name:
+    description: "bank name on BACEN"
+    required: false
+    type: string
+  code:
+    description: "bank code on BACEN"
+    required: false
+    type: string
+  ispb:
+    description: "bank ispb on BACEN"
+    required: false
+    type: string
 runs:
   using: "composite"
   steps:
@@ -71,6 +83,9 @@ runs:
         FRONT_STG: "production"
         THEME: "${{ inputs.theme }}"
         MODULES: "${{ inputs.modules }}"
+        BACEN_NAME: '${{ inputs.bacen_name }}'
+        ISPB: '${{ inputs.ispb }}'
+        CODE: '${{ inputs.code }}'
         GENERATE_SOURCEMAP: "false"
         CI: "false"
         REACT_APP_API_BKO_GATEWAY: "https://${{ env.AWS_API_BKO_DOMAIN }}"

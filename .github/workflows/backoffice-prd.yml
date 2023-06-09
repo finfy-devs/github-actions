@@ -18,7 +18,6 @@ jobs:
     outputs:
       deployment-matrix: ${{ steps.export-deployment-matrix.outputs.deployment-matrix }}
     steps:
-
       - name: Fetch API Config 📦
         uses: JamesIves/fetch-api-data-action@v2.2.2
         with:
@@ -51,13 +50,16 @@ jobs:
         uses: actions/checkout@v2
         with:
           persist-credentials: false
-    
-      - name: "${{ matrix.server.name }}: Prepare deploy"
+
+      - name: '${{ matrix.server.name }}: Prepare deploy'
         run: |
           echo "${{ matrix.server.name }}"
           echo "${{ matrix.server.theme }}"
           echo "${{ matrix.server.subdomain }}"
           echo "${{ matrix.server.modules }}"
+          echo "${{ matrix.server.bacen_name }}"
+          echo "${{ matrix.server.code }}"
+          echo "${{ matrix.server.ispb }}"
           client_code=AWS_CREDENTIALS_${{ matrix.server.name }}
           echo "${client_code}"
           echo "::set-output name=secret::${client_code}"
@@ -73,12 +75,15 @@ jobs:
           echo "::set-output name=aws_secret::${aws_secret}"
         id: data_secret
 
-      - name: Deploy 
-        uses: cartos-devs/github-actions/devops/front-deploy2@main 
+      - name: Deploy
+        uses: cartos-devs/github-actions/devops/front-deploy2@main
         with:
           aws_key: ${{ steps.data_secret.outputs.aws_key }}
           aws_secret: ${{ steps.data_secret.outputs.aws_secret }}
           theme: ${{ matrix.server.theme }}
           modules: ${{ matrix.server.modules }}
-          subdomain: "backoffice" # ${{ matrix.server.subdomain }}
+          bacen_name: ${{ matrix.server.bacen_name }}
+          code: ${{ matrix.server.code }}
+          ispb: ${{ matrix.server.ispb }}
+          subdomain: 'backoffice' # ${{ matrix.server.subdomain }}
           directory: ${{ inputs.directory }}
