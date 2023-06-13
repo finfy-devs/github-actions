@@ -141,6 +141,7 @@ jobs:
           --update-secrets "$RUN_SECRETS" \
           --update-env-vars "ENTRY_POINT=$ENTRY_POINT,DATABASE_NAME=$DB_NAME,$RUN_ENVS" \
           --vpc-connector $VPC_CONNECTOR \
+          --vpc-connector all-traffic \
           --service-account "$SERVICE_ACCOUNT" \
           --min-instances 1 \
 
@@ -169,5 +170,6 @@ jobs:
           --update-secrets "$RUN_SECRETS" \
           --update-env-vars "ENTRY_POINT=$ENTRY_POINT,DATABASE_NAME=$DB_NAME,$RUN_ENVS" \
           --vpc-connector $VPC_CONNECTOR \
+          --vpc-connector all-traffic \
           --service-account "$SERVICE_ACCOUNT" \
           --min-instances 1 \
