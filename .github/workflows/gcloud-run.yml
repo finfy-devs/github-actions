@@ -1,4 +1,4 @@
-name: Deploy CGP
+name: Deploy GCP
 
 on:
   workflow_call:
