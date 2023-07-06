@@ -144,6 +144,7 @@ jobs:
           --vpc-egress all-traffic \
           --service-account "$SERVICE_ACCOUNT" \
           --min-instances 1 \
+          --backend_dns_lookup_family v4only \
 
   deploy-grpc:
     name: Deploy Gcloud GRPC
@@ -173,3 +174,4 @@ jobs:
           --vpc-egress all-traffic \
           --service-account "$SERVICE_ACCOUNT" \
           --min-instances 1 \
+          --backend_dns_lookup_family v4only \
