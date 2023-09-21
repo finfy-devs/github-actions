@@ -31,6 +31,10 @@ inputs:
     description: "bank ispb on BACEN"
     required: false
     type: string
+  account_access_management:
+    description: "types of account management access"
+    required: false
+    type: string
 runs:
   using: "composite"
   steps:
@@ -88,6 +92,7 @@ runs:
         CODE: '${{ inputs.code }}'
         GENERATE_SOURCEMAP: "false"
         CI: "false"
+        ACCOUNT_ACCESS_MANAGEMENT: "${{ inputs.account_access_management }}"
         REACT_APP_API_BKO_GATEWAY: "https://${{ env.AWS_API_BKO_DOMAIN }}"
         REACT_APP_HOST: "https://${{ inputs.subdomain }}.${{ env.AWS_DOMAIN }}"
         REACT_APP_API_GATEWAY: "https://${{ env.AWS_API_DOMAIN }}"

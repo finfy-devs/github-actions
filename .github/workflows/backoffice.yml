@@ -78,6 +78,7 @@ jobs:
           CODE: '${{ inputs.code }}'
           GENERATE_SOURCEMAP: 'false'
           CI: 'false'
+          ACCOUNT_ACCESS_MANAGEMENT: 'PJ'
           REACT_APP_API_BKO_GATEWAY: 'https://${{ env.AWS_API_BKO_DOMAIN }}'
           REACT_APP_API_GATEWAY: 'https://${{ env.AWS_API_DOMAIN }}'
           REACT_APP_SPB_SPI: 'https://api.spb.cartos.solutions'
