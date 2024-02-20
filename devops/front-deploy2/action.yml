@@ -35,6 +35,10 @@ inputs:
     description: "types of account management access"
     required: false
     type: string
+  sac:
+    description: "sac phone, days and hours"
+    required: false
+    type: string
 runs:
   using: "composite"
   steps:
@@ -93,6 +97,7 @@ runs:
         GENERATE_SOURCEMAP: "false"
         CI: "false"
         ACCOUNT_ACCESS_MANAGEMENT: "${{ inputs.account_access_management }}"
+        SAC: "${{ inputs.sac }}"
         REACT_APP_API_BKO_GATEWAY: "https://${{ env.AWS_API_BKO_DOMAIN }}"
         REACT_APP_HOST: "https://${{ inputs.subdomain }}.${{ env.AWS_DOMAIN }}"
         REACT_APP_API_GATEWAY: "https://${{ env.AWS_API_DOMAIN }}"
