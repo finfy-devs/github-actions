@@ -61,6 +61,7 @@ jobs:
           echo "${{ matrix.server.code }}"
           echo "${{ matrix.server.ispb }}"
           echo "${{ matrix.server.account_access_management }}"
+          echo "${{ matrix.server.sac }}"
           client_code=AWS_CREDENTIALS_${{ matrix.server.name }}
           echo "${client_code}"
           echo "::set-output name=secret::${client_code}"
@@ -89,3 +90,4 @@ jobs:
           subdomain: 'backoffice' # ${{ matrix.server.subdomain }}
           directory: ${{ inputs.directory }}
           account_access_management: ${{ matrix.server.account_access_management }}
+          sac: ${{ matrix.server.sac }}
